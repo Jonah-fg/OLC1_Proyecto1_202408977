@@ -1,0 +1,84 @@
+package analisis;
+
+import java.util.List;
+import java.util.ArrayList;
+import java_cup.runtime.Symbol;
+import ejecucion.*;
+
+terminal MAGE, WARRIOR, INITIAL, RULES, IF, THEN, ELSE;
+terminal COLON, COMMA, LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN;
+terminal EQ, NE, GT, LT, GE, LE, AND, OR, NOT;
+terminal TRUE, FALSE;
+terminal Integer INTEGER;
+terminal String IDENTIFIER;
+terminal ARCANE_BOLT, FIREBALL, MAGIC_BARRIER, HEALING_RUNE, MEDITATE;
+terminal SLASH, HEAVY_STRIKE, SHIELD_BLOCK, WAR_CRY, REST;
+
+non terminal program;
+non terminal strategy;
+non terminal accion;
+non terminal List ruleList;
+non terminal Rule rule;
+non terminal condition;
+non terminal expr;
+
+precedence left AND;
+precedence left OR;
+precedence right NOT;
+precedence nonassoc EQ, NE, GT, LT, GE, LE;
+
+start with program;
+
+program ::= strategy;
+
+strategy::=
+    MAGE IDENTIFIER LBRACE
+        INITIAL COLON accion
+        RULES COLON LBRACKET ruleList RBRACKET
+        ELSE COLON accion
+    RBRACE
+    {: RESULT =null; :}
+    |
+    WARRIOR IDENTIFIER LBRACE
+        INITIAL COLON accion
+        RULES COLON LBRACKET ruleList RBRACKET
+        ELSE COLON accion
+    RBRACE
+    {: RESULT =null; :}
+    ;
+
+accion ::=
+    ARCANE_BOLT     {: RESULT = null; :}
+    | FIREBALL      {: RESULT= null; :}
+    | MAGIC_BARRIER {: RESULT= null; :}
+    | HEALING_RUNE  {: RESULT=null; :}
+    | MEDITATE      {: RESULT =null; :}
+    | SLASH         {: RESULT = null; :}
+    | HEAVY_STRIKE  {: RESULT = null; :}
+    | SHIELD_BLOCK  {: RESULT=null; :}
+    | WAR_CRY       {: RESULT=null; :}
+    | REST          {: RESULT= null; :}
+    ;
+
+ruleList ::=
+    rule:r
+    {: RESULT=new ArrayList(); RESULT.add(r); :}
+    |
+    ruleList:l COMMA rule:r
+    {: l.add(r); RESULT = l; :}
+    ;
+
+rule ::=
+    IF condition THEN accion
+    {: RESULT = null; :}
+    ;
+
+condition::=
+    expr:e
+    {: RESULT= null; :}
+    ;
+
+expr ::=
+    TRUE
+    {: RESULT c=null; :}
+    ;
