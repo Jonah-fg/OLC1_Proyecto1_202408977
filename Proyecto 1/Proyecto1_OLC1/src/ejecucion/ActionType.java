@@ -1,0 +1,6 @@
+package ejecucion;
+
+public enum ActionType {
+    ARCANE_BOLT, FIREBALL, MAGIC_BARRIER, HEALING_RUNE, MEDITATE,
+    SLASH, HEAVY_STRIKE, SHIELD_BLOCK, WAR_CRY, REST
+}
