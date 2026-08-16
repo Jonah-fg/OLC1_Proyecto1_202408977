@@ -60,6 +60,12 @@ import analisis.sym;
 "self_history"      { return new Symbol(sym.SELF_HISTORY, yytext()); }
 "opponent_history"  { return new Symbol(sym.OPPONENT_HISTORY, yytext()); }
 
+// Funciones del sistema
+"last_move"         { return new Symbol(sym.LAST_MOVE, yytext()); }
+"get_move"          {return new Symbol(sym.GET_MOVE, yytext());}
+"get_moves_count"   {return new Symbol(sym.GET_MOVES_COUNT, yytext()); }
+"get_last_n_moves"  { return new Symbol(sym.GET_LAST_N_MOVES, yytext());}
+
 
 //Operadores y símbolos
 ":"             { return symbol(sym.COLON); }

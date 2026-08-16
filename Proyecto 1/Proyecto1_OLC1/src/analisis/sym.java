@@ -8,6 +8,7 @@ package analisis;
 /** CUP generated interface containing symbol constants. */
 public interface sym {
   /* terminals */
+  public static final int GET_MOVES_COUNT = 54;
   public static final int LBRACKET = 13;
   public static final int FIREBALL = 31;
   public static final int RANDOM = 48;
@@ -27,6 +28,7 @@ public interface sym {
   public static final int RPAREN = 16;
   public static final int NOT = 25;
   public static final int AND = 23;
+  public static final int GET_LAST_N_MOVES = 55;
   public static final int LT = 20;
   public static final int OR = 24;
   public static final int COMMA = 10;
@@ -44,10 +46,12 @@ public interface sym {
   public static final int SELF_HISTORY = 49;
   public static final int ROUND_NUMBER = 46;
   public static final int COLON = 9;
+  public static final int LAST_MOVE = 52;
   public static final int REST = 39;
   public static final int LBRACE = 11;
   public static final int ELSE = 8;
   public static final int OPPONENT_HEALTH = 41;
+  public static final int GET_MOVE = 53;
   public static final int FLOAT = 51;
   public static final int THEN = 7;
   public static final int RBRACE = 12;
@@ -112,7 +116,11 @@ public interface sym {
   "RANDOM",
   "SELF_HISTORY",
   "OPPONENT_HISTORY",
-  "FLOAT"
+  "FLOAT",
+  "LAST_MOVE",
+  "GET_MOVE",
+  "GET_MOVES_COUNT",
+  "GET_LAST_N_MOVES"
   };
 }
 

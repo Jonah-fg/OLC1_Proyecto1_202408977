@@ -1,7 +1,7 @@
 mage Merlin {
     initial: ARCANE_BOLT
     rules: [
-        if self_health <= 30 then HEALING_RUNE
+        if round_number >= 3 && last_move(opponent_history) == FIREBALL then SHIELD_BLOCK,
+        else ARCANE_BOLT
     ]
-    else: ARCANE_BOLT
 }

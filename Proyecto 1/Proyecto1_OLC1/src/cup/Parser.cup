@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java_cup.runtime.Symbol;
 import ejecucion.*;
 
+// TERMINALES
 terminal MAGE, WARRIOR, INITIAL, RULES, IF, THEN, ELSE;
 terminal COLON, COMMA, LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN;
 terminal EQ, NE, GT, LT, GE, LE, AND, OR, NOT;
@@ -14,61 +15,110 @@ terminal String IDENTIFIER;
 terminal ARCANE_BOLT, FIREBALL, MAGIC_BARRIER, HEALING_RUNE, MEDITATE;
 terminal SLASH, HEAVY_STRIKE, SHIELD_BLOCK, WAR_CRY, REST;
 
-// Terminales para estados y valores
+// Estados
 terminal SELF_HEALTH, OPPONENT_HEALTH, SELF_RESOURCE, OPPONENT_RESOURCE;
 terminal SELF_SCORE, OPPONENT_SCORE, ROUND_NUMBER, TOTAL_ROUNDS;
 terminal RANDOM, SELF_HISTORY, OPPONENT_HISTORY;
 terminal Float FLOAT;
 
-non terminal program;
-non terminal strategy;
-non terminal accion;
-non terminal List ruleList;
-non terminal rule;
-non terminal condition;
-non terminal Object expr;          // expresión general
-non terminal Object comparacion;   // comparación
-non terminal Object valor;         // valor simple (número, estado, etc.)
+// Funciones del sistema
+terminal LAST_MOVE, GET_MOVE, GET_MOVES_COUNT, GET_LAST_N_MOVES;
 
+// NO TERMINALES
+non terminal Strategy program;
+non terminal Strategy strategy;
+non terminal ActionType accion;
+non terminal List ruleList;
+non terminal Rule rule;
+non terminal List rule_list;          // Lista de una o más reglas
+non terminal Object rules_content;
+non terminal Condition condition;
+non terminal Condition expr;
+non terminal Condition comparacion;
+non terminal Object valor;
+non terminal Object llamada;
+
+// PRECEDENCIA
+precedence right NOT;
 precedence left AND;
 precedence left OR;
-precedence right NOT;
 precedence nonassoc EQ, NE, GT, LT, GE, LE;
 
 start with program;
 
+// REGLAS
+
 program ::= strategy;
 
-strategy::=
-    MAGE IDENTIFIER LBRACE
-        INITIAL COLON accion
-        RULES COLON LBRACKET ruleList RBRACKET
-        ELSE COLON accion
+strategy ::=
+    MAGE IDENTIFIER:id LBRACE
+        INITIAL COLON accion:act
+        RULES COLON LBRACKET rules_content:rc RBRACKET
     RBRACE
-    {: RESULT =null; :}
+    {:
+        List<Rule> rules = (List<Rule>) ((Object[])rc)[0];
+        ActionType defAct = (ActionType) ((Object[])rc)[1];
+        RESULT = new Strategy(id, true, (ActionType)act, rules, defAct);
+    :}
     |
-    WARRIOR IDENTIFIER LBRACE
-        INITIAL COLON accion
-        RULES COLON LBRACKET ruleList RBRACKET
-        ELSE COLON accion
+    WARRIOR IDENTIFIER:id LBRACE
+        INITIAL COLON accion:act
+        RULES COLON LBRACKET rules_content:rc RBRACKET
     RBRACE
-    {: RESULT =null; :}
+    {:
+        List<Rule> rules = (List<Rule>) ((Object[])rc)[0];
+        ActionType defAct = (ActionType) ((Object[])rc)[1];
+        RESULT = new Strategy(id, false, (ActionType)act, rules, defAct);
+    :}
     ;
 
-valor ::=
-    INTEGER:i          {: RESULT = i; :}
-    | FLOAT:f          {: RESULT = f; :}
-    | SELF_HEALTH      {: RESULT = "self_health"; :}
-    | OPPONENT_HEALTH  {: RESULT = "opponent_health"; :}
-    | SELF_RESOURCE    {: RESULT = "self_resource"; :}
-    | OPPONENT_RESOURCE{: RESULT = "opponent_resource"; :}
-    | SELF_SCORE       {: RESULT = "self_score"; :}
-    | OPPONENT_SCORE   {: RESULT = "opponent_score"; :}
-    | ROUND_NUMBER     {: RESULT = "round_number"; :}
-    | TOTAL_ROUNDS     {: RESULT = "total_rounds"; :}
-    | RANDOM           {: RESULT = "random"; :}
-    | TRUE             {: RESULT = true; :}
-    | FALSE            {: RESULT = false; :}
+accion ::=
+    ARCANE_BOLT     {: RESULT = ActionType.ARCANE_BOLT; :}
+    | FIREBALL      {: RESULT = ActionType.FIREBALL; :}
+    | MAGIC_BARRIER {: RESULT = ActionType.MAGIC_BARRIER; :}
+    | HEALING_RUNE  {: RESULT = ActionType.HEALING_RUNE; :}
+    | MEDITATE      {: RESULT = ActionType.MEDITATE; :}
+    | SLASH         {: RESULT = ActionType.SLASH; :}
+    | HEAVY_STRIKE  {: RESULT = ActionType.HEAVY_STRIKE; :}
+    | SHIELD_BLOCK  {: RESULT = ActionType.SHIELD_BLOCK; :}
+    | WAR_CRY       {: RESULT = ActionType.WAR_CRY; :}
+    | REST          {: RESULT = ActionType.REST; :}
+    ;
+
+rule_list ::=
+    rule:r
+    {: RESULT = new ArrayList<Rule>(); ((List<Rule>)RESULT).add(r); :}
+    |
+    rule_list:l COMMA rule:r
+    {: l.add(r); RESULT = l; :}
+    ;
+
+rule ::=
+    IF condition:c THEN accion:a
+    {: RESULT = new Rule((Condition)c, (ActionType)a); :}
+    ;
+
+rules_content ::=
+    rule_list:l COMMA ELSE accion:a
+    {: RESULT = new Object[]{l, a}; :}
+    |
+    ELSE accion:a
+    {: RESULT = new Object[]{new ArrayList<Rule>(), a}; :}
+    ;
+
+condition ::=
+    expr:e
+    {: RESULT = (Condition) e; :}
+    ;
+
+expr ::=
+    comparacion:c               {: RESULT = c; :}
+    | TRUE                      {: RESULT = (Condition) (ctx -> true); :}
+    | FALSE                     {: RESULT = (Condition) (ctx -> false); :}
+    | expr:e1 AND expr:e2       {: RESULT = (Condition) (ctx -> ((Condition)e1).evaluate(ctx) && ((Condition)e2).evaluate(ctx)); :}
+    | expr:e1 OR expr:e2        {: RESULT = (Condition) (ctx -> ((Condition)e1).evaluate(ctx) || ((Condition)e2).evaluate(ctx)); :}
+    | NOT expr:e                {: RESULT = (Condition) (ctx -> !((Condition)e).evaluate(ctx)); :}
+    | LPAREN expr:e RPAREN      {: RESULT = e; :}
     ;
 
 comparacion ::=
@@ -80,39 +130,48 @@ comparacion ::=
     | valor:v1 GE valor:v2  {: RESULT = (Condition) (ctx -> ((Number)v1).doubleValue() >= ((Number)v2).doubleValue()); :}
     ;
 
-
-accion ::=
-    ARCANE_BOLT     {: RESULT = null; :}
-    | FIREBALL      {: RESULT= null; :}
-    | MAGIC_BARRIER {: RESULT= null; :}
-    | HEALING_RUNE  {: RESULT=null; :}
-    | MEDITATE      {: RESULT =null; :}
-    | SLASH         {: RESULT = null; :}
-    | HEAVY_STRIKE  {: RESULT = null; :}
-    | SHIELD_BLOCK  {: RESULT=null; :}
-    | WAR_CRY       {: RESULT=null; :}
-    | REST          {: RESULT= null; :}
+valor ::=
+    INTEGER:i               {: RESULT = i; :}
+    | FLOAT:f               {: RESULT = f; :}
+    | SELF_HEALTH           {: RESULT = "self_health"; :}
+    | OPPONENT_HEALTH       {: RESULT = "opponent_health"; :}
+    | SELF_RESOURCE         {: RESULT = "self_resource"; :}
+    | OPPONENT_RESOURCE     {: RESULT = "opponent_resource"; :}
+    | SELF_SCORE            {: RESULT = "self_score"; :}
+    | OPPONENT_SCORE        {: RESULT = "opponent_score"; :}
+    | ROUND_NUMBER          {: RESULT = "round_number"; :}
+    | TOTAL_ROUNDS          {: RESULT = "total_rounds"; :}
+    | RANDOM                {: RESULT = "random"; :}
+    | SELF_HISTORY          {: RESULT = "self_history"; :}
+    | OPPONENT_HISTORY      {: RESULT = "opponent_history"; :}
+    | ARCANE_BOLT           {: RESULT = ActionType.ARCANE_BOLT; :}
+    | FIREBALL              {: RESULT = ActionType.FIREBALL; :}
+    | MAGIC_BARRIER         {: RESULT = ActionType.MAGIC_BARRIER; :}
+    | HEALING_RUNE          {: RESULT = ActionType.HEALING_RUNE; :}
+    | MEDITATE              {: RESULT = ActionType.MEDITATE; :}
+    | SLASH                 {: RESULT = ActionType.SLASH; :}
+    | HEAVY_STRIKE          {: RESULT = ActionType.HEAVY_STRIKE; :}
+    | SHIELD_BLOCK          {: RESULT = ActionType.SHIELD_BLOCK; :}
+    | WAR_CRY               {: RESULT = ActionType.WAR_CRY; :}
+    | REST                  {: RESULT = ActionType.REST; :}
+    | llamada:f             {: RESULT = f; :}
+    | TRUE                  {: RESULT = true; :}
+    | FALSE                 {: RESULT = false; :}
     ;
 
-ruleList ::=
-    rule:r
-    {: RESULT=new ArrayList(); RESULT.add(r); :}
+
+llamada ::=
+    LAST_MOVE LPAREN valor:h RPAREN
+    {: RESULT = ActionType.ARCANE_BOLT; :}
     |
-    ruleList:l COMMA rule:r
-    {: l.add(r); RESULT = l; :}
+    GET_MOVE LPAREN valor:h COMMA valor:n RPAREN
+    {: RESULT = ActionType.ARCANE_BOLT; :}
+    |
+    GET_MOVES_COUNT LPAREN valor:h COMMA accion:a RPAREN
+    {: RESULT = Integer.valueOf(0); :}
+    |
+    GET_LAST_N_MOVES LPAREN valor:h COMMA valor:n RPAREN
+    {: RESULT = new ArrayList<ActionType>(); :}
     ;
 
-rule ::=
-    IF condition THEN accion
-    {: RESULT = null; :}
-    ;
 
-condition ::=
-    expr:e                  {: RESULT = (Condition) e; :}
-    ;
-
-expr ::=
-    comparacion:c           {: RESULT = c; :}
-    | TRUE                  {: RESULT = (Condition) (ctx -> true); :}
-    | FALSE                 {: RESULT = (Condition) (ctx -> false); :}
-    ;
