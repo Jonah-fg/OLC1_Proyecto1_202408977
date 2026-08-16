@@ -23,7 +23,7 @@ import analisis.sym;
 %%
 
 // Palabras reservadas
-"mage"          { return symbol(sym.MAGE);}
+"mage"          { return new Symbol(sym.MAGE, yytext()); }
 "warrior"       { return symbol(sym.WARRIOR); }
 "initial"       { return symbol(sym.INITIAL); }
 "rules"         { return symbol(sym.RULES); }
@@ -46,6 +46,20 @@ import analisis.sym;
 "SHIELD_BLOCK"  { return symbol(sym.SHIELD_BLOCK);}
 "WAR_CRY"       { return symbol(sym.WAR_CRY); }
 "REST"          { return symbol(sym.REST); }
+
+// Estados del sistema (Paso 1)
+"self_health"       { return new Symbol(sym.SELF_HEALTH, yytext()); }
+"opponent_health"   { return new Symbol(sym.OPPONENT_HEALTH, yytext()); }
+"self_resource"     { return new Symbol(sym.SELF_RESOURCE, yytext()); }
+"opponent_resource" { return new Symbol(sym.OPPONENT_RESOURCE, yytext()); }
+"self_score"        { return new Symbol(sym.SELF_SCORE, yytext()); }
+"opponent_score"    { return new Symbol(sym.OPPONENT_SCORE, yytext()); }
+"round_number"      { return new Symbol(sym.ROUND_NUMBER, yytext()); }
+"total_rounds"      { return new Symbol(sym.TOTAL_ROUNDS, yytext()); }
+"random"            { return new Symbol(sym.RANDOM, yytext()); }
+"self_history"      { return new Symbol(sym.SELF_HISTORY, yytext()); }
+"opponent_history"  { return new Symbol(sym.OPPONENT_HISTORY, yytext()); }
+
 
 //Operadores y símbolos
 ":"             { return symbol(sym.COLON); }
@@ -70,6 +84,9 @@ import analisis.sym;
 
 // Números enteros
 [0-9]+          { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
+
+// Números decimales (para random)
+[0-9]+\.[0-9]+      { return new Symbol(sym.FLOAT, Double.parseDouble(yytext())); }
 
 // Identificadores (nombres)
 [a-zA-Z_][a-zA-Z0-9_]* { return symbol(sym.IDENTIFIER, yytext()); }

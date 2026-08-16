@@ -1,7 +1,7 @@
 mage Merlin {
     initial: ARCANE_BOLT
     rules: [
-        if true then ARCANE_BOLT
+        if self_health <= 30 then HEALING_RUNE
     ]
     else: ARCANE_BOLT
 }

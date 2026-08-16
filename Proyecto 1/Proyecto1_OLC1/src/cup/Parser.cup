@@ -14,13 +14,21 @@ terminal String IDENTIFIER;
 terminal ARCANE_BOLT, FIREBALL, MAGIC_BARRIER, HEALING_RUNE, MEDITATE;
 terminal SLASH, HEAVY_STRIKE, SHIELD_BLOCK, WAR_CRY, REST;
 
+// Terminales para estados y valores
+terminal SELF_HEALTH, OPPONENT_HEALTH, SELF_RESOURCE, OPPONENT_RESOURCE;
+terminal SELF_SCORE, OPPONENT_SCORE, ROUND_NUMBER, TOTAL_ROUNDS;
+terminal RANDOM, SELF_HISTORY, OPPONENT_HISTORY;
+terminal Float FLOAT;
+
 non terminal program;
 non terminal strategy;
 non terminal accion;
 non terminal List ruleList;
-non terminal Rule rule;
+non terminal rule;
 non terminal condition;
-non terminal expr;
+non terminal Object expr;          // expresión general
+non terminal Object comparacion;   // comparación
+non terminal Object valor;         // valor simple (número, estado, etc.)
 
 precedence left AND;
 precedence left OR;
@@ -46,6 +54,32 @@ strategy::=
     RBRACE
     {: RESULT =null; :}
     ;
+
+valor ::=
+    INTEGER:i          {: RESULT = i; :}
+    | FLOAT:f          {: RESULT = f; :}
+    | SELF_HEALTH      {: RESULT = "self_health"; :}
+    | OPPONENT_HEALTH  {: RESULT = "opponent_health"; :}
+    | SELF_RESOURCE    {: RESULT = "self_resource"; :}
+    | OPPONENT_RESOURCE{: RESULT = "opponent_resource"; :}
+    | SELF_SCORE       {: RESULT = "self_score"; :}
+    | OPPONENT_SCORE   {: RESULT = "opponent_score"; :}
+    | ROUND_NUMBER     {: RESULT = "round_number"; :}
+    | TOTAL_ROUNDS     {: RESULT = "total_rounds"; :}
+    | RANDOM           {: RESULT = "random"; :}
+    | TRUE             {: RESULT = true; :}
+    | FALSE            {: RESULT = false; :}
+    ;
+
+comparacion ::=
+    valor:v1 EQ valor:v2    {: RESULT = (Condition) (ctx -> v1.equals(v2)); :}
+    | valor:v1 NE valor:v2  {: RESULT = (Condition) (ctx -> !v1.equals(v2)); :}
+    | valor:v1 LT valor:v2  {: RESULT = (Condition) (ctx -> ((Number)v1).doubleValue() < ((Number)v2).doubleValue()); :}
+    | valor:v1 LE valor:v2  {: RESULT = (Condition) (ctx -> ((Number)v1).doubleValue() <= ((Number)v2).doubleValue()); :}
+    | valor:v1 GT valor:v2  {: RESULT = (Condition) (ctx -> ((Number)v1).doubleValue() > ((Number)v2).doubleValue()); :}
+    | valor:v1 GE valor:v2  {: RESULT = (Condition) (ctx -> ((Number)v1).doubleValue() >= ((Number)v2).doubleValue()); :}
+    ;
+
 
 accion ::=
     ARCANE_BOLT     {: RESULT = null; :}
@@ -73,12 +107,12 @@ rule ::=
     {: RESULT = null; :}
     ;
 
-condition::=
-    expr:e
-    {: RESULT= null; :}
+condition ::=
+    expr:e                  {: RESULT = (Condition) e; :}
     ;
 
 expr ::=
-    TRUE
-    {: RESULT c=null; :}
+    comparacion:c           {: RESULT = c; :}
+    | TRUE                  {: RESULT = (Condition) (ctx -> true); :}
+    | FALSE                 {: RESULT = (Condition) (ctx -> false); :}
     ;

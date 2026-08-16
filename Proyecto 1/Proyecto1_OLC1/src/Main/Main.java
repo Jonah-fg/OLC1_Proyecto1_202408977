@@ -1,8 +1,8 @@
 package Main;
 
+import java.io.FileReader;
 import analisis.Lexer;
 import analisis.Parser;
-import java.io.FileReader;
 
 public class Main {
     public static void main(String[] args) throws Exception {

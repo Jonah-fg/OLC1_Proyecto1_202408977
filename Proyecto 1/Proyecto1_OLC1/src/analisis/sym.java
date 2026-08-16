@@ -10,11 +10,14 @@ public interface sym {
   /* terminals */
   public static final int LBRACKET = 13;
   public static final int FIREBALL = 31;
+  public static final int RANDOM = 48;
   public static final int HEAVY_STRIKE = 36;
   public static final int GE = 21;
   public static final int ARCANE_BOLT = 30;
   public static final int SLASH = 35;
   public static final int MEDITATE = 34;
+  public static final int OPPONENT_RESOURCE = 43;
+  public static final int SELF_RESOURCE = 42;
   public static final int INTEGER = 28;
   public static final int LPAREN = 15;
   public static final int MAGE = 2;
@@ -27,6 +30,7 @@ public interface sym {
   public static final int LT = 20;
   public static final int OR = 24;
   public static final int COMMA = 10;
+  public static final int OPPONENT_SCORE = 45;
   public static final int IF = 6;
   public static final int LE = 22;
   public static final int INITIAL = 4;
@@ -34,17 +38,25 @@ public interface sym {
   public static final int RBRACKET = 14;
   public static final int TRUE = 26;
   public static final int error = 1;
+  public static final int TOTAL_ROUNDS = 47;
   public static final int EQ = 17;
+  public static final int SELF_HEALTH = 40;
+  public static final int SELF_HISTORY = 49;
+  public static final int ROUND_NUMBER = 46;
   public static final int COLON = 9;
   public static final int REST = 39;
   public static final int LBRACE = 11;
   public static final int ELSE = 8;
+  public static final int OPPONENT_HEALTH = 41;
+  public static final int FLOAT = 51;
   public static final int THEN = 7;
   public static final int RBRACE = 12;
   public static final int NE = 18;
   public static final int WAR_CRY = 38;
   public static final int WARRIOR = 3;
+  public static final int OPPONENT_HISTORY = 50;
   public static final int FALSE = 27;
+  public static final int SELF_SCORE = 44;
   public static final int GT = 19;
   public static final int HEALING_RUNE = 33;
   public static final int IDENTIFIER = 29;
@@ -88,7 +100,19 @@ public interface sym {
   "HEAVY_STRIKE",
   "SHIELD_BLOCK",
   "WAR_CRY",
-  "REST"
+  "REST",
+  "SELF_HEALTH",
+  "OPPONENT_HEALTH",
+  "SELF_RESOURCE",
+  "OPPONENT_RESOURCE",
+  "SELF_SCORE",
+  "OPPONENT_SCORE",
+  "ROUND_NUMBER",
+  "TOTAL_ROUNDS",
+  "RANDOM",
+  "SELF_HISTORY",
+  "OPPONENT_HISTORY",
+  "FLOAT"
   };
 }
 
