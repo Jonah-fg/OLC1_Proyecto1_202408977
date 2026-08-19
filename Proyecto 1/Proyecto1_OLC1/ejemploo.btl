@@ -5,3 +5,28 @@ mage Merlin {
         else ARCANE_BOLT
     ]
 }
+
+match DueloDeLaTorre {
+    players: [Merlin, Ragnar]
+    rounds: 10
+    scoring: {
+        damage_point: 1,
+        healing_point: 1,
+        successful_defense: 20,
+        victory_bonus: 100,
+        failed_action_penalty: 10
+    }
+    bonuses: {
+        mage_combo: [ARCANE_BOLT, ARCANE_BOLT, FIREBALL],
+        mage_combo_points: 35,
+        warrior_combo: [SLASH, SLASH, HEAVY_STRIKE],
+        warrior_combo_points: 40,
+        low_health_victory: 25
+    }
+}
+
+main {
+    run [DueloDeLaTorre] with {
+        seed: 42
+    }
+}

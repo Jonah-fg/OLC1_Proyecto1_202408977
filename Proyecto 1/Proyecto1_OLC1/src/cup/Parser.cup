@@ -15,6 +15,19 @@ terminal String IDENTIFIER;
 terminal ARCANE_BOLT, FIREBALL, MAGIC_BARRIER, HEALING_RUNE, MEDITATE;
 terminal SLASH, HEAVY_STRIKE, SHIELD_BLOCK, WAR_CRY, REST;
 
+// Palabras clave para partidas y main
+terminal MATCH, PLAYERS, ROUNDS, SCORING, BONUSES;
+terminal MAIN, RUN, WITH, SEED;
+
+// Propiedades de puntuación
+terminal DAMAGE_POINT, HEALING_POINT, SUCCESSFUL_DEFENSE;
+terminal VICTORY_BONUS, FAILED_ACTION_PENALTY;
+
+// Propiedades de bonificaciones
+terminal MAGE_COMBO, MAGE_COMBO_POINTS;
+terminal WARRIOR_COMBO, WARRIOR_COMBO_POINTS;
+terminal LOW_HEALTH_VICTORY;
+
 // Estados
 terminal SELF_HEALTH, OPPONENT_HEALTH, SELF_RESOURCE, OPPONENT_RESOURCE;
 terminal SELF_SCORE, OPPONENT_SCORE, ROUND_NUMBER, TOTAL_ROUNDS;
@@ -25,8 +38,22 @@ terminal Float FLOAT;
 terminal LAST_MOVE, GET_MOVE, GET_MOVES_COUNT, GET_LAST_N_MOVES;
 
 // NO TERMINALES
-non terminal Strategy program;
+non terminal Program program;
 non terminal Strategy strategy;
+non terminal List strategy_list;
+// Partidas
+non terminal Match match;
+non terminal List match_list;             // List<Match>
+non terminal List identifier_list;        // List<String>
+// Puntuación y bonificaciones
+non terminal Scoring scoring_block;
+non terminal Bonuses bonuses_block;
+non terminal List action_list;            // List<ActionType>
+// Bloque main
+non terminal MainBlock main_block;
+non terminal Run run_instruction;
+non terminal List run_list;               // List<Run>
+
 non terminal ActionType accion;
 non terminal List ruleList;
 non terminal Rule rule;
@@ -48,7 +75,38 @@ start with program;
 
 // REGLAS
 
-program ::= strategy;
+program ::=
+    strategy_list:sl
+    match_list:ml
+    main_block:mb
+    {:
+        RESULT = new Program(sl, ml, mb);
+    :}
+    ;
+
+strategy_list ::=
+    strategy:s strategy_list:rest
+    {:
+        rest.add(0, s);
+        RESULT = rest;
+    :}
+    |
+    {:
+        RESULT = new ArrayList<Strategy>();
+    :}
+    ;
+
+match_list ::=
+    match:m match_list:rest
+    {:
+        rest.add(0, m);
+        RESULT = rest;
+    :}
+    |
+    {:
+        RESULT = new ArrayList<Match>();
+    :}
+    ;
 
 strategy ::=
     MAGE IDENTIFIER:id LBRACE
@@ -105,6 +163,97 @@ rules_content ::=
     ELSE accion:a
     {: RESULT = new Object[]{new ArrayList<Rule>(), a}; :}
     ;
+
+match ::=
+    MATCH IDENTIFIER:name LBRACE
+        PLAYERS COLON LBRACKET identifier_list:players RBRACKET
+        ROUNDS COLON INTEGER:rounds
+        SCORING COLON LBRACE scoring_block:sc RBRACE
+        BONUSES COLON LBRACE bonuses_block:bon RBRACE
+    RBRACE
+    {:
+        RESULT = new Match(name, players, rounds, sc, bon);
+    :}
+    ;
+
+identifier_list ::=
+    IDENTIFIER:id
+    {:
+        RESULT =new ArrayList<String>();
+        ((List<String>)RESULT).add(id);
+    :}
+    |
+    identifier_list:l COMMA IDENTIFIER:id
+    {:
+        l.add(id);
+        RESULT = l;
+    :}
+    ;
+
+scoring_block ::=
+    DAMAGE_POINT COLON INTEGER:dp COMMA
+    HEALING_POINT COLON INTEGER:hp COMMA
+    SUCCESSFUL_DEFENSE COLON INTEGER:sd COMMA
+    VICTORY_BONUS COLON INTEGER:vb COMMA
+    FAILED_ACTION_PENALTY COLON INTEGER:fp
+    {:
+        RESULT =new Scoring(dp, hp, sd, vb, fp);
+    :}
+    ;
+
+bonuses_block ::=
+    MAGE_COMBO COLON LBRACKET action_list:mc RBRACKET COMMA
+    MAGE_COMBO_POINTS COLON INTEGER:mcp COMMA
+    WARRIOR_COMBO COLON LBRACKET action_list:wc RBRACKET COMMA
+    WARRIOR_COMBO_POINTS COLON INTEGER:wcp COMMA
+    LOW_HEALTH_VICTORY COLON INTEGER:lh
+    {:
+        RESULT=new Bonuses(mc, mcp, wc, wcp, lh);
+    :}
+    ;
+
+action_list ::=
+    accion:a
+    {:
+        RESULT = new ArrayList<ActionType>();
+        ((List<ActionType>)RESULT).add(a);
+    :}
+    |
+    action_list:l COMMA accion:a
+    {:
+        l.add(a);
+        RESULT = l;
+    :}
+    ;
+
+main_block ::=
+    MAIN LBRACE run_list:runs RBRACE
+    {:
+        RESULT = new MainBlock(runs);
+    :}
+    ;
+
+run_list ::=
+    run_instruction:r run_list:rest
+    {:
+        rest.add(0, r);
+        RESULT = rest;
+    :}
+    |
+    {:
+        RESULT = new ArrayList<Run>();
+    :}
+    ;
+
+
+run_instruction ::=
+    RUN LBRACKET identifier_list:names RBRACKET
+    WITH LBRACE SEED COLON INTEGER:seed RBRACE
+    {:
+        RESULT = new Run(names, seed);
+    :}
+    ;
+
 
 condition ::=
     expr:e

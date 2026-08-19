@@ -33,6 +33,31 @@ import analisis.sym;
 "true"          { return symbol(sym.TRUE);}
 "false"         {return symbol(sym.FALSE); }
 
+//Palabras reservadas para partidas y main
+"match"         { return symbol(sym.MATCH); }
+"players"       { return symbol(sym.PLAYERS); }
+"rounds"        { return symbol(sym.ROUNDS); }
+"scoring"       { return symbol(sym.SCORING); }
+"bonuses"       { return symbol(sym.BONUSES); }
+"main"          { return symbol(sym.MAIN); }
+"run"           { return symbol(sym.RUN); }
+"with"          { return symbol(sym.WITH); }
+"seed"          { return symbol(sym.SEED); }
+
+// Propiedades de puntuación
+"damage_point"          {return symbol(sym.DAMAGE_POINT); }
+"healing_point"         { return symbol(sym.HEALING_POINT); }
+"successful_defense"    { return symbol(sym.SUCCESSFUL_DEFENSE); }
+"victory_bonus"         { return symbol(sym.VICTORY_BONUS); }
+"failed_action_penalty" {return symbol(sym.FAILED_ACTION_PENALTY);}
+
+//Propiedades de bonificaciones
+"mage_combo"            { return symbol(sym.MAGE_COMBO); }
+"mage_combo_points"     { return symbol(sym.MAGE_COMBO_POINTS); }
+"warrior_combo"         { return symbol(sym.WARRIOR_COMBO); }
+"warrior_combo_points"  { return symbol(sym.WARRIOR_COMBO_POINTS); }
+"low_health_victory"    { return symbol(sym.LOW_HEALTH_VICTORY); }
+
 // Acciones de mago
 "ARCANE_BOLT"   { return symbol(sym.ARCANE_BOLT); }
 "FIREBALL"      { return symbol(sym.FIREBALL); }
